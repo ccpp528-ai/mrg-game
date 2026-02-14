@@ -3,186 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRG Elite</title>
+    <title>MRG Final Empire</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@900&family=Oswald:wght@700&display=swap');
         
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            background: #000; 
-            background-image: radial-gradient(circle at center, #1a1500 0%, #000 100%);
-            color: white; 
-            text-align: center; 
-            font-family: 'Cairo', sans-serif; 
-            height: 100vh; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            overflow: hidden; 
-            touch-action: none; 
+            background: #000; background-image: radial-gradient(circle at center, #201a00 0%, #000 100%);
+            color: white; text-align: center; font-family: 'Cairo', sans-serif; 
+            height: 100vh; margin: 0; display: flex; flex-direction: column; align-items: center; 
+            overflow: hidden; touch-action: none;
         }
 
-        /* الرصيد العملاق */
-        .header { margin-top: 60px; }
-        .balance { 
-            font-family: 'Oswald', sans-serif;
-            font-size: 5rem; 
-            font-weight: 700; 
-            color: #ffd700; 
-            text-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
-            margin: 0;
-            letter-spacing: -2px;
-        }
-        .symbol { color: #ffd700; font-size: 1.5rem; opacity: 0.8; font-weight: bold; margin-top: -10px; }
+        .header { margin-top: 50px; position: relative; z-index: 10; }
+        .balance { font-family: 'Oswald', sans-serif; font-size: 5.5rem; color: #ffd700; text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); margin: 0; }
+        .unit { font-size: 1.5rem; color: #ffd700; font-weight: bold; margin-top: -10px; letter-spacing: 3px; }
 
-        /* العملة بتأثير النيون */
-        .coin-box { 
-            position: relative; 
-            margin: 40px 0; 
-            z-index: 10;
-        }
-        .glow {
-            position: absolute;
-            width: 280px; height: 280px;
-            background: rgba(255, 215, 0, 0.15);
-            filter: blur(50px);
-            border-radius: 50%;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-        }
+        .coin-area { position: relative; margin: 40px 0; perspective: 1000px; }
         .coin-img { 
-            width: 260px; height: 260px; 
-            border-radius: 50%; 
-            border: 8px solid #ffd700; 
-            box-shadow: 0 0 100px rgba(255, 215, 0, 0.3);
-            cursor: pointer; 
-            transition: transform 0.05s ease-out;
-            object-fit: cover;
+            width: 270px; height: 270px; border-radius: 50%; border: 8px solid #ffd700; 
+            box-shadow: 0 0 80px rgba(255, 215, 0, 0.3); transition: transform 0.05s ease-out;
+            will-change: transform; object-fit: cover;
         }
 
-        /* شريط الطاقة المطور */
-        .energy-wrapper { width: 85%; margin-top: 20px; }
-        .bar-container { background: #111; height: 22px; border-radius: 30px; border: 2px solid #333; overflow: hidden; position: relative; }
-        .bar-fill { 
-            background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%); 
-            height: 100%; width: 100%; 
-            box-shadow: 0 0 20px #ffd700;
-            transition: width 0.1s linear;
+        .energy-box { width: 85%; }
+        .bar-outer { background: rgba(255,255,255,0.05); height: 24px; border-radius: 30px; border: 2px solid #444; overflow: hidden; position: relative; }
+        .bar-inner { background: linear-gradient(90deg, #ffd700, #ff8c00); height: 100%; width: 100%; transition: width 0.1s linear; }
+
+        .tap-num { 
+            position: fixed; color: #fff; font-family: 'Oswald', sans-serif; font-size: 3.5rem; font-weight: 700; 
+            pointer-events: none; z-index: 9999; animation: float 0.5s ease-out forwards; 
+            text-shadow: 0 0 15px #ffd700; will-change: transform, opacity;
+        }
+        @keyframes float {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -250px) scale(1.6) rotate(10deg); }
         }
 
-        /* الأرقام المتطايرة الفاخرة */
-        .tap-number { 
-            position: fixed; 
-            color: #fff; 
-            font-family: 'Oswald', sans-serif;
-            font-size: 3rem; 
-            font-weight: 700; 
-            pointer-events: none; 
-            z-index: 999; 
-            animation: floatUp 0.6s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; 
-            text-shadow: 0 0 10px #ffd700, 0 0 20px #000;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-200px) scale(1.5) rotate(10deg); }
-        }
-
-        .task-list { width: 92%; margin-top: 35px; }
-        .task-item { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            padding: 20px; border-radius: 25px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            text-decoration: none; color: white;
-            backdrop-filter: blur(10px);
+        .task { 
+            background: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; padding: 20px; 
+            border-radius: 25px; width: 90%; display: flex; justify-content: space-between; 
+            align-items: center; margin-top: 40px; text-decoration: none; color: white;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 class="balance" id="scoreVal">0.00</h1>
-        <div class="symbol">$MRG TOKEN</div>
+        <h1 class="balance" id="bDisplay">0.00</h1>
+        <div class="unit">$MRG TOKEN</div>
     </div>
 
-    <div class="coin-box" id="tapMain">
-        <div class="glow"></div>
-        <img src="logo.jpg" class="coin-img" id="coinArt">
+    <div class="coin-area" id="tapZone">
+        <img src="logo.jpg" class="coin-img" id="coinBody">
     </div>
 
-    <div class="energy-wrapper">
-        <div class="bar-container"><div class="bar-fill" id="energyFill"></div></div>
-        <p style="font-size: 1.3rem; margin-top: 10px; font-weight: 900; color: #ffd700;">⚡ <span id="energyNum">1000</span></p>
+    <div class="energy-box">
+        <div class="bar-outer"><div class="bar-inner" id="eFill"></div></div>
+        <p style="font-size: 1.5rem; margin-top: 10px; color: #ffd700;">⚡ <span id="eNum">1000</span></p>
     </div>
 
-    <div class="task-list">
-        <a href="https://t.me/mrg_community" class="task-item" id="taskAction">
-            <span style="font-weight: bold; font-size: 1.1rem;">انضم لمجتمع MRG</span>
-            <span style="background: #ffd700; color: #000; padding: 6px 15px; border-radius: 15px; font-weight: 900;">+100.00</span>
-        </a>
-    </div>
-
-    <audio id="tapSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+    <a href="https://t.me/mrg_community" class="task" id="tBtn">
+        <span style="font-weight: bold;">انضم لـ MRG community</span>
+        <span style="background: #ffd700; color: #000; padding: 5px 15px; border-radius: 12px; font-weight: 900;">+100.00</span>
+    </a>
 
     <script>
-        let score = parseFloat(localStorage.getItem('mrg_v5_score')) || 0;
-        let energy = parseInt(localStorage.getItem('mrg_v5_energy')) || 1000;
-        const scoreDisplay = document.getElementById('scoreVal');
-        const audio = document.getElementById('tapSound');
+        let score = parseFloat(localStorage.getItem('mrg_final_v1_score')) || 0;
+        let energy = parseInt(localStorage.getItem('mrg_final_v1_energy')) || 1000;
+        const bDisplay = document.getElementById('bDisplay');
+        const coinBody = document.getElementById('coinBody');
 
-        function update() {
-            scoreDisplay.innerText = score.toFixed(2);
-            document.getElementById('energyFill').style.width = (energy/10) + "%";
-            document.getElementById('energyNum').innerText = energy;
+        // نظام الصوت المتعدد لعدم حدوث انقطاع
+        const audioPool = Array.from({length: 10}, () => new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3'));
+        let audioIdx = 0;
+
+        function playSound() {
+            const sound = audioPool[audioIdx];
+            sound.currentTime = 0;
+            sound.play().catch(()=>{});
+            audioIdx = (audioIdx + 1) % audioPool.length;
         }
 
-        document.getElementById('tapMain').addEventListener('touchstart', (e) => {
+        function refresh() {
+            bDisplay.innerText = score.toFixed(2);
+            document.getElementById('eFill').style.width = (energy/10) + "%";
+            document.getElementById('eNum').innerText = energy;
+        }
+
+        document.getElementById('tapZone').addEventListener('touchstart', (e) => {
+            e.preventDefault(); // منع التحكم في الشاشة أو التكبير
             if (energy > 0) {
                 Array.from(e.changedTouches).forEach(t => {
                     score += 0.05;
                     energy -= 1;
-                    
-                    // تشغيل الصوت
-                    audio.currentTime = 0;
-                    audio.play();
+                    playSound();
 
-                    // خلق تأثير الرقم المتطاير
                     const n = document.createElement('div');
                     n.innerText = "+0.05";
-                    n.className = 'tap-number';
-                    n.style.left = t.clientX - 40 + 'px';
-                    n.style.top = t.clientY - 40 + 'px';
+                    n.className = 'tap-num';
+                    n.style.left = t.clientX + 'px';
+                    n.style.top = t.clientY + 'px';
                     document.body.appendChild(n);
-                    setTimeout(() => n.remove(), 600);
+                    setTimeout(() => n.remove(), 500);
                 });
 
-                localStorage.setItem('mrg_v5_score', score);
-                localStorage.setItem('mrg_v5_energy', energy);
-                update();
+                localStorage.setItem('mrg_final_v1_score', score);
+                localStorage.setItem('mrg_final_v1_energy', energy);
+                refresh();
+                if(navigator.vibrate) navigator.vibrate(15);
                 
-                // تأثير اهتزاز بسيط
-                if(navigator.vibrate) navigator.vibrate(25);
-                
-                // تأثير ضغطة العملة
-                document.getElementById('coinArt').style.transform = "scale(0.92)";
-                setTimeout(() => document.getElementById('coinArt').style.transform = "scale(1)", 50);
+                coinBody.style.transform = "scale(0.94)";
+                setTimeout(() => coinBody.style.transform = "scale(1)", 50);
             }
-        });
+        }, {passive: false});
 
-        document.getElementById('taskAction').onclick = function() {
-            if(!localStorage.getItem('mrg_v5_task')) {
+        document.getElementById('tBtn').onclick = function() {
+            if(!localStorage.getItem('mrg_final_task')) {
                 score += 100;
-                localStorage.setItem('mrg_v5_task', 'done');
-                localStorage.setItem('mrg_v5_score', score);
-                update();
-                this.style.opacity = "0.4";
-                this.style.pointerEvents = "none";
+                localStorage.setItem('mrg_final_task', 'done');
+                localStorage.setItem('mrg_final_v1_score', score);
+                refresh();
+                this.style.display = "none";
             }
         };
 
-        setInterval(() => { if(energy < 1000) { energy++; update(); } }, 1500);
-        update();
+        setInterval(() => { if(energy < 1000) { energy++; refresh(); } }, 1500);
+        refresh();
     </script>
 </body>
 </html>
