@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MRG$ Ultimate Empire</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@800&family=Noto+Sans+Arabic:wght@900&display=swap');
+        
+        :root { --gold: #ffd700; --dark-gold: #b8860b; --bg: #000; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: none; }
+        
+        body { 
+            background: var(--bg); color: #fff; margin: 0; 
+            font-family: 'Noto Sans Arabic', sans-serif; height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+            background: radial-gradient(circle at 50% 35%, #1a1a05 0%, #000 85%);
+        }
+
+        /* الرصيد العلوي */
+        .header { padding: 40px 20px; text-align: center; z-index: 100; }
+        .score-container { font-family: 'Lexend', sans-serif; font-size: 5.5rem; color: #fff; text-shadow: 0 0 30px rgba(255,215,0,0.6); line-height: 1; }
+        .token-label { color: var(--gold); font-size: 1.3rem; font-weight: bold; letter-spacing: 4px; margin-top: 10px; text-transform: uppercase; }
+
+        /* منطقة العملة الاحترافية */
+        .game-core { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        
+        .coin-sphere {
+            width: 280px; height: 280px; border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 50%, #ffd700 100%);
+            position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px rgba(184, 134, 11, 0.4), inset 0 0 20px rgba(255,255,255,0.5);
+            transition: transform 0.05s; border: 4px solid #5c4301;
+        }
+        .coin-sphere::before {
+            content: '$MRG'; font-family: 'Lexend'; font-size: 3.5rem; color: #5c4301;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.3); font-weight: 900;
+        }
+        .coin-sphere:active { transform: scale(0.92) rotate(2deg); }
+
+        /* شريط الطاقة والواجهة */
+        .footer-ui { padding: 25px; background: rgba(0,0,0,0.9); border-top: 1px solid #222; z-index: 100; }
+        .energy-wrapper { width: 100%; margin-bottom: 15px; }
+        .energy-track { height: 14px; background: #111; border-radius: 10px; border: 1px solid #333; overflow: hidden; }
+        .energy-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ffd700, #ff8c00); transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .task-card {
+            background: linear-gradient(90deg, #0a0a0a 0%, #111 100%);
+            border: 1px solid var(--gold); padding: 18px 25px; border-radius: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            text-decoration: none; color: white; margin-top: 10px;
+        }
+        .btn-reward { background: var(--gold); color: #000; padding: 6px 14px; border-radius: 10px; font-weight: 900; font-size: 0.9rem; }
+
+        /* تأثيرات النقر المتطايرة */
+        .tap-effect {
+            position: fixed; color: var(--gold); font-family: 'Lexend'; font-size: 2.8rem;
+            font-weight: 900; pointer-events: none; z-index: 1000;
+            animation: floatUp 0.6s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-130px) scale(1.4); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="score-container" id="score">0.00</div>
+        <div class="token-label">$MRG TOKEN</div>
+    </div>
+
+    <div class="game-core" id="hitArea">
+        <div class="coin-sphere" id="coin"></div>
+    </div>
+
+    <div class="footer-ui">
+        <div class="energy-wrapper">
+            <div class="energy-track"><div class="energy-fill" id="eFill"></div></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; color: var(--gold); font-weight: bold;">
+                <span>⚡ الطاقة المتبقية</span>
+                <span><span id="eVal">1000</span> / 1000</span>
+            </div>
+        </div>
+
+        <a href="https://t.me/mrg_community" class="task-card" id="mainTask">
+            <span style="font-weight: bold;">انضم لمجتمع MRG$ الآن</span>
+            <span class="btn-reward">+100.00</span>
+        </a>
+    </div>
+
+    <script>
+        let score = parseFloat(localStorage.getItem('mrg_v4_score')) || 0;
+        let energy = parseInt(localStorage.getItem('mrg_v4_energy')) || 1000;
+
+        // توليد صوت احترافي برمجياً (لحل مشكلة الصوت)
+        const aCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playClick() {
+            const osc = aCtx.createOscillator();
+            const g = aCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, aCtx.currentTime);
+            g.gain.setValueAtTime(0.1, aCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, aCtx.currentTime + 0.1);
+            osc.connect(g); g.connect(aCtx.destination);
+            osc.start(); osc.stop(aCtx.currentTime + 0.1);
+        }
+
+        function update() {
+            document.getElementById('score').innerText = score.toFixed(2);
+            document.getElementById('eFill').style.width = (energy / 10) + "%";
+            document.getElementById('eVal').innerText = energy;
+        }
+
+        // معالجة النقر (فقط داخل الدائرة)
+        document.getElementById('coin').addEventListener('pointerdown', function(e) {
+            if (energy > 0) {
+                score += 0.05;
+                energy -= 1;
+                playClick();
+
+                // تأثير النص المتطاير
+                const pop = document.createElement('div');
+                pop.className = 'tap-effect';
+                pop.innerText = "+0.05";
+                pop.style.left = (e.clientX - 20) + 'px';
+                pop.style.top = (e.clientY - 20) + 'px';
+                document.body.appendChild(pop);
+                setTimeout(() => pop.remove(), 600);
+
+                localStorage.setItem('mrg_v4_score', score);
+                localStorage.setItem('mrg_v4_energy', energy);
+                update();
+                if(navigator.vibrate) navigator.vibrate(15);
+            }
+        });
+
+        // استعادة الطاقة تلقائياً
+        setInterval(() => {
+            if (energy < 1000) {
+                energy++;
+                update();
+            }
+        }, 1200);
+
+        update();
+    </script>
+</body>
+</html>
