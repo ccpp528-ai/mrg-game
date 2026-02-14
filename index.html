@@ -7,76 +7,68 @@
     <style>
         body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: white; text-align: center; font-family: sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; user-select: none; }
         .score-container { font-size: 3rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6); margin-bottom: 10px; }
-        .coin-wrapper { position: relative; cursor: pointer; transition: transform 0.1s; }
-        .coin-wrapper:active { transform: scale(0.92); }
-        .coin-img { width: 220px; height: 220px; border-radius: 50%; border: 5px solid #ffd700; box-shadow: 0 0 40px #ffd700; background: #222; object-fit: cover; }
-        .energy-container { width: 80%; background: #333; height: 15px; border-radius: 10px; margin-top: 30px; border: 1px solid #ffd700; overflow: hidden; }
+        .coin-img { width: 200px; height: 200px; border-radius: 50%; border: 5px solid #ffd700; box-shadow: 0 0 30px #ffd700; cursor: pointer; transition: transform 0.1s; }
+        .coin-img:active { transform: scale(0.92); }
+        .energy-container { width: 80%; background: #333; height: 12px; border-radius: 10px; margin-top: 20px; border: 1px solid #ffd700; }
         .energy-bar { background: linear-gradient(90deg, #ffd700, #ffa500); height: 100%; width: 100%; transition: width 0.2s; }
-        .energy-text { margin-top: 5px; font-size: 1rem; color: #ffd700; }
-        .info { margin-top: 15px; font-size: 0.9rem; color: #888; }
+        
+        /* قسم المهام */
+        .task-button { margin-top: 25px; background: #ffd700; color: black; padding: 10px 20px; border-radius: 20px; font-weight: bold; text-decoration: none; display: inline-block; cursor: pointer; border: none; font-size: 1rem; }
+        .task-button:hover { background: #fff; }
     </style>
 </head>
 <body>
 
     <div class="score-container" id="score">0.00 MRG$</div>
     
-    <div class="coin-wrapper" id="tapZone">
+    <div id="tapZone">
         <img src="logo.jpg" class="coin-img" alt="MRG Coin">
     </div>
 
     <div class="energy-container">
         <div class="energy-bar" id="energyBar"></div>
     </div>
-    <div class="energy-text">الطاقة: <span id="energyVal">1000</span>/1000</div>
+    <p>الطاقة: <span id="energyVal">1000</span>/1000</p>
 
-    <div class="info">كل ضغطة = 0.05 MRG$</div>
+    <a href="https://t.me/mrg_community" target="_blank" class="task-button" id="taskBtn">
+        انضم للقناة واربح 100.00 MRG$
+    </a>
 
     <script>
-        // تحميل البيانات المحفوظة أو البدء من جديد
         let score = parseFloat(localStorage.getItem('mrg_score')) || 0.00;
         let energy = parseInt(localStorage.getItem('mrg_energy')) || 1000;
-        const maxEnergy = 1000;
-
         const scoreElement = document.getElementById('score');
-        const energyBar = document.getElementById('energyBar');
-        const energyVal = document.getElementById('energyVal');
 
-        // تحديث الواجهة عند الفتح
         scoreElement.innerText = score.toFixed(2) + " MRG$";
-        updateEnergyUI();
 
-        document.getElementById('tapZone').onclick = (e) => {
-            if (energy >= 1) {
-                // زيادة الرصيد
+        document.getElementById('tapZone').onclick = () => {
+            if (energy > 0) {
                 score = (parseFloat(score) + 0.05).toFixed(2);
-                energy -= 1;
-                
-                // حفظ البيانات
-                localStorage.setItem('mrg_score', score);
-                localStorage.setItem('mrg_energy', energy);
-
-                // تحديث الواجهة
-                scoreElement.innerText = score + " MRG$";
-                updateEnergyUI();
-
-                // تأثير اهتزاز
-                if (navigator.vibrate) navigator.vibrate(10);
+                energy--;
+                saveAndUI();
             }
         };
 
-        // نظام تجديد الطاقة تلقائياً (1 طاقة كل ثانية)
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy++;
-                localStorage.setItem('mrg_energy', energy);
-                updateEnergyUI();
+        // مهمة القناة
+        document.getElementById('taskBtn').onclick = function() {
+            if(!localStorage.getItem('task_done')) {
+                score = (parseFloat(score) + 100.00).toFixed(2);
+                localStorage.setItem('task_done', 'true');
+                saveAndUI();
+                alert("مبروك! حصلت على 100 MRG$ للانضمام");
+                this.style.display = 'none'; // اخفاء الزر بعد التنفيذ
             }
-        }, 1000);
+        };
 
-        function updateEnergyUI() {
-            energyVal.innerText = energy;
-            energyBar.style.width = (energy / maxEnergy * 100) + "%";
+        function saveAndUI() {
+            localStorage.setItem('mrg_score', score);
+            localStorage.setItem('mrg_energy', energy);
+            scoreElement.innerText = score + " MRG$";
+            document.getElementById('energyBar').style.width = (energy/10) + "%";
+            document.getElementById('energyVal').innerText = energy;
         }
+
+        setInterval(() => { if(energy < 1000) { energy++; saveAndUI(); } }, 2000);
     </script>
 </body>
 </html>
