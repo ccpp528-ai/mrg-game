@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRG Game</title>
+    <style>
+        body { background: #0a0a0a; color: white; text-align: center; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .coin { width: 150px; cursor: pointer; border-radius: 50%; box-shadow: 0 0 20px #ffd700; transition: transform 0.1s; }
+        .coin:active { transform: scale(0.9); }
+        h1 { color: #ffd700; }
+    </style>
+</head>
+<body>
+    <h1>عملة MRG$</h1>
+    <img src="https://i.ibb.co/LzNfXpB/mrg-coin.png" class="coin" alt="Coin">
+    <h2 id="score">0</h2>
+    <p>اضغط لتجميع العملات!</p>
+
+    <script>
+        let score = 0;
+        const scoreElement = document.getElementById('score');
+        document.querySelector('.coin').onclick = () => {
+            score++;
+            scoreElement.innerText = score;
+        };
+    </script>
+</body>
+</html>
