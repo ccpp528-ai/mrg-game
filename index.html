@@ -2,134 +2,145 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRG Final Empire</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>MRG Gold Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@900&family=Oswald:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body { 
-            background: #000; background-image: radial-gradient(circle at center, #201a00 0%, #000 100%);
+            background: #000;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
             color: white; text-align: center; font-family: 'Cairo', sans-serif; 
-            height: 100vh; margin: 0; display: flex; flex-direction: column; align-items: center; 
-            overflow: hidden; touch-action: none;
+            margin: 0; padding-bottom: 60px;
+            overflow-y: auto; overflow-x: hidden;
         }
 
-        .header { margin-top: 50px; position: relative; z-index: 10; }
-        .balance { font-family: 'Oswald', sans-serif; font-size: 5.5rem; color: #ffd700; text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); margin: 0; }
-        .unit { font-size: 1.5rem; color: #ffd700; font-weight: bold; margin-top: -10px; letter-spacing: 3px; }
+        /* الرصيد العلوي */
+        .balance-section { margin-top: 60px; margin-bottom: 30px; }
+        .balance-amount { font-size: 5rem; font-weight: 900; color: #ffd700; margin: 0; text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+        .token-name { font-size: 1.5rem; color: #ffd700; font-weight: bold; margin-top: -10px; opacity: 0.9; }
 
-        .coin-area { position: relative; margin: 40px 0; perspective: 1000px; }
-        .coin-img { 
-            width: 270px; height: 270px; border-radius: 50%; border: 8px solid #ffd700; 
-            box-shadow: 0 0 80px rgba(255, 215, 0, 0.3); transition: transform 0.05s ease-out;
-            will-change: transform; object-fit: cover;
+        /* منطقة العملة والوهج */
+        .coin-container { position: relative; display: inline-block; margin: 20px 0; touch-action: manipulation; }
+        .coin-glow { 
+            position: absolute; width: 300px; height: 300px; 
+            background: rgba(255, 215, 0, 0.1); filter: blur(60px); 
+            border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;
+        }
+        .main-coin { 
+            width: 260px; height: 260px; border-radius: 50%; border: 8px solid #ffd700; 
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3); position: relative; z-index: 2; transition: transform 0.05s;
         }
 
-        .energy-box { width: 85%; }
-        .bar-outer { background: rgba(255,255,255,0.05); height: 24px; border-radius: 30px; border: 2px solid #444; overflow: hidden; position: relative; }
-        .bar-inner { background: linear-gradient(90deg, #ffd700, #ff8c00); height: 100%; width: 100%; transition: width 0.1s linear; }
-
-        .tap-num { 
-            position: fixed; color: #fff; font-family: 'Oswald', sans-serif; font-size: 3.5rem; font-weight: 700; 
-            pointer-events: none; z-index: 9999; animation: float 0.5s ease-out forwards; 
-            text-shadow: 0 0 15px #ffd700; will-change: transform, opacity;
+        /* شريط الطاقة */
+        .status-box { width: 85%; margin: 30px auto; }
+        .energy-bar { 
+            background: #111; height: 25px; border-radius: 15px; border: 2px solid #ffd700; 
+            overflow: hidden; position: relative;
         }
-        @keyframes float {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -250px) scale(1.6) rotate(10deg); }
+        .energy-fill { 
+            background: linear-gradient(90deg, #ffd700, #ff8c00); height: 100%; 
+            width: 100%; transition: width 0.2s; box-shadow: 0 0 15px #ffd700;
         }
 
-        .task { 
-            background: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; padding: 20px; 
-            border-radius: 25px; width: 90%; display: flex; justify-content: space-between; 
-            align-items: center; margin-top: 40px; text-decoration: none; color: white;
+        /* الأرقام المتطايرة */
+        .fly-up { 
+            position: fixed; color: #fff; font-size: 2.5rem; font-weight: 900; 
+            pointer-events: none; z-index: 1000; animation: animUp 0.6s ease-out forwards;
+            text-shadow: 0 0 10px #ffd700;
+        }
+        @keyframes animUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-180px) scale(1.4); } }
+
+        /* المهام (Tasks) */
+        .tasks-list { width: 90%; margin: 40px auto; }
+        .task-item { 
+            background: #111; border: 2px dashed #ffd700; padding: 20px; 
+            border-radius: 20px; display: flex; justify-content: space-between; 
+            align-items: center; text-decoration: none; color: white; margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1 class="balance" id="bDisplay">0.00</h1>
-        <div class="unit">$MRG TOKEN</div>
+    <div class="balance-section">
+        <h1 class="balance-amount" id="currentScore">0.00</h1>
+        <div class="token-name">$MRG TOKEN</div>
     </div>
 
-    <div class="coin-area" id="tapZone">
-        <img src="logo.jpg" class="coin-img" id="coinBody">
+    <div class="coin-container" id="tapZone">
+        <div class="coin-glow"></div>
+        <img src="logo.jpg" class="main-coin" id="coinBody">
     </div>
 
-    <div class="energy-box">
-        <div class="bar-outer"><div class="bar-inner" id="eFill"></div></div>
-        <p style="font-size: 1.5rem; margin-top: 10px; color: #ffd700;">⚡ <span id="eNum">1000</span></p>
+    <div class="status-box">
+        <div class="energy-bar"><div class="energy-fill" id="energyLevel"></div></div>
+        <p style="font-size: 1.4rem; color: #ffd700; font-weight: bold; margin-top: 10px;">⚡ <span id="energyNum">1000</span> / 1000</p>
     </div>
 
-    <a href="https://t.me/mrg_community" class="task" id="tBtn">
-        <span style="font-weight: bold;">انضم لـ MRG community</span>
-        <span style="background: #ffd700; color: #000; padding: 5px 15px; border-radius: 12px; font-weight: 900;">+100.00</span>
-    </a>
+    <div class="tasks-list">
+        <a href="https://t.me/mrg_community" class="task-item" id="task1">
+            <span style="font-weight: bold;">انضم لـ MRG community</span>
+            <span style="background: #ffd700; color: #000; padding: 6px 15px; border-radius: 10px; font-weight: 900;">+100.00</span>
+        </a>
+    </div>
+
+    <audio id="pop" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
     <script>
-        let score = parseFloat(localStorage.getItem('mrg_final_v1_score')) || 0;
-        let energy = parseInt(localStorage.getItem('mrg_final_v1_energy')) || 1000;
-        const bDisplay = document.getElementById('bDisplay');
-        const coinBody = document.getElementById('coinBody');
+        let score = parseFloat(localStorage.getItem('mrg_v_gold_score')) || 0;
+        let energy = parseInt(localStorage.getItem('mrg_v_gold_energy')) || 1000;
+        const scoreDisplay = document.getElementById('currentScore');
+        const coin = document.getElementById('coinBody');
+        const sound = document.getElementById('pop');
 
-        // نظام الصوت المتعدد لعدم حدوث انقطاع
-        const audioPool = Array.from({length: 10}, () => new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3'));
-        let audioIdx = 0;
-
-        function playSound() {
-            const sound = audioPool[audioIdx];
-            sound.currentTime = 0;
-            sound.play().catch(()=>{});
-            audioIdx = (audioIdx + 1) % audioPool.length;
+        function refreshUI() {
+            scoreDisplay.innerText = score.toFixed(2);
+            document.getElementById('energyLevel').style.width = (energy/10) + "%";
+            document.getElementById('energyNum').innerText = energy;
         }
 
-        function refresh() {
-            bDisplay.innerText = score.toFixed(2);
-            document.getElementById('eFill').style.width = (energy/10) + "%";
-            document.getElementById('eNum').innerText = energy;
-        }
-
-        document.getElementById('tapZone').addEventListener('touchstart', (e) => {
-            e.preventDefault(); // منع التحكم في الشاشة أو التكبير
+        document.getElementById('tapZone').addEventListener('click', (e) => {
             if (energy > 0) {
-                Array.from(e.changedTouches).forEach(t => {
-                    score += 0.05;
-                    energy -= 1;
-                    playSound();
-
-                    const n = document.createElement('div');
-                    n.innerText = "+0.05";
-                    n.className = 'tap-num';
-                    n.style.left = t.clientX + 'px';
-                    n.style.top = t.clientY + 'px';
-                    document.body.appendChild(n);
-                    setTimeout(() => n.remove(), 500);
-                });
-
-                localStorage.setItem('mrg_final_v1_score', score);
-                localStorage.setItem('mrg_final_v1_energy', energy);
-                refresh();
-                if(navigator.vibrate) navigator.vibrate(15);
+                score += 0.05;
+                energy -= 1;
                 
-                coinBody.style.transform = "scale(0.94)";
-                setTimeout(() => coinBody.style.transform = "scale(1)", 50);
-            }
-        }, {passive: false});
+                // الصوت
+                sound.currentTime = 0;
+                sound.play();
 
-        document.getElementById('tBtn').onclick = function() {
-            if(!localStorage.getItem('mrg_final_task')) {
+                // تأثير الأرقام
+                const n = document.createElement('div');
+                n.innerText = "+0.05";
+                n.className = 'fly-up';
+                n.style.left = e.clientX + 'px';
+                n.style.top = e.clientY + 'px';
+                document.body.appendChild(n);
+                setTimeout(() => n.remove(), 600);
+
+                localStorage.setItem('mrg_v_gold_score', score);
+                localStorage.setItem('mrg_v_gold_energy', energy);
+                refreshUI();
+                
+                coin.style.transform = "scale(0.93)";
+                setTimeout(() => coin.style.transform = "scale(1)", 50);
+                if(navigator.vibrate) navigator.vibrate(20);
+            }
+        });
+
+        document.getElementById('task1').onclick = function() {
+            if(!localStorage.getItem('gold_task_done')) {
                 score += 100;
-                localStorage.setItem('mrg_final_task', 'done');
-                localStorage.setItem('mrg_final_v1_score', score);
-                refresh();
-                this.style.display = "none";
+                localStorage.setItem('gold_task_done', 'true');
+                localStorage.setItem('mrg_v_gold_score', score);
+                refreshUI();
+                this.style.opacity = "0.5";
             }
         };
 
-        setInterval(() => { if(energy < 1000) { energy++; refresh(); } }, 1500);
-        refresh();
+        setInterval(() => { if(energy < 1000) { energy++; refreshUI(); } }, 1500);
+        refreshUI();
     </script>
 </body>
 </html>
