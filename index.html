@@ -1,28 +1,30 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MRG Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MRG Token Hub</title>
     <style>
-        body { background: #0a0a0a; color: white; text-align: center; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .coin { width: 150px; cursor: pointer; border-radius: 50%; box-shadow: 0 0 20px #ffd700; transition: transform 0.1s; }
-        .coin:active { transform: scale(0.9); }
-        h1 { color: #ffd700; }
+        body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: white; text-align: center; font-family: sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        .score-container { font-size: 2.8rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6); margin-bottom: 20px; }
+        .coin-img { width: 220px; height: 220px; border-radius: 50%; border: 5px solid #ffd700; box-shadow: 0 0 40px #ffd700; cursor: pointer; transition: transform 0.1s; background: #222; }
+        .coin-img:active { transform: scale(0.92); }
+        .info { margin-top: 25px; font-size: 1.2rem; color: #ffd700; opacity: 0.8; }
     </style>
 </head>
 <body>
-    <h1>عملة MRG$</h1>
-    <img src="https://i.ibb.co/LzNfXpB/mrg-coin.png" class="coin" alt="Coin">
-    <h2 id="score">0</h2>
-    <p>اضغط لتجميع العملات!</p>
-
+    <div class="score-container" id="score">0.00 MRG$</div>
+    <div id="tapZone">
+        <img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" class="coin-img" alt="MRG Coin">
+    </div>
+    <div class="info">كل ضغطة = 0.05 MRG$</div>
     <script>
-        let score = 0;
+        let score = 0.00;
         const scoreElement = document.getElementById('score');
-        document.querySelector('.coin').onclick = () => {
-            score++;
-            scoreElement.innerText = score;
+        document.getElementById('tapZone').onclick = () => {
+            score = (parseFloat(score) + 0.05).toFixed(2);
+            scoreElement.innerText = score + " MRG$";
+            if (navigator.vibrate) navigator.vibrate(15);
         };
     </script>
 </body>
