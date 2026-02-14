@@ -3,73 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRG Token Game</title>
+    <title>MRG Premium Game</title>
     <style>
-        body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: white; text-align: center; font-family: sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; user-select: none; }
-        .score-container { font-size: 3rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6); margin-bottom: 10px; }
-        .coin-img { width: 200px; height: 200px; border-radius: 50%; border: 5px solid #ffd700; box-shadow: 0 0 30px #ffd700; cursor: pointer; transition: transform 0.1s; }
-        .coin-img:active { transform: scale(0.92); }
-        .energy-container { width: 80%; background: #333; height: 12px; border-radius: 10px; margin-top: 20px; border: 1px solid #ffd700; }
-        .energy-bar { background: linear-gradient(90deg, #ffd700, #ffa500); height: 100%; width: 100%; transition: width 0.2s; }
+        body { background: #000; color: white; text-align: center; font-family: 'Cairo', sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; user-select: none; }
+        .score-container { font-size: 3.5rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 30px rgba(255, 215, 0, 0.4); margin-bottom: 5px; transition: all 0.3s ease; }
         
-        /* قسم المهام */
-        .task-button { margin-top: 25px; background: #ffd700; color: black; padding: 10px 20px; border-radius: 20px; font-weight: bold; text-decoration: none; display: inline-block; cursor: pointer; border: none; font-size: 1rem; }
-        .task-button:hover { background: #fff; }
+        .coin-wrapper { position: relative; margin: 20px 0; touch-action: manipulation; }
+        .coin-img { width: 230px; height: 230px; border-radius: 50%; border: 6px solid #ffd700; box-shadow: 0 0 50px rgba(255, 214, 0, 0.3); transition: transform 0.1s; }
+        .coin-img:active { transform: scale(0.9); }
+
+        .energy-section { width: 85%; margin-top: 20px; }
+        .energy-bar-bg { background: #222; height: 14px; border-radius: 20px; border: 1px solid #444; overflow: hidden; }
+        .energy-bar-fill { background: linear-gradient(90deg, #ffd700, #ff8c00); height: 100%; width: 100%; transition: width 0.3s ease; }
+        
+        .tasks-area { margin-top: 30px; width: 90%; }
+        .task-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); text-decoration: none; color: white; margin-bottom: 10px; }
+        .task-card:active { transform: scale(0.98); }
+        .reward-badge { background: #ffd700; color: black; padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; }
+
+        /* تأثير الرقم الطائر */
+        .plus-one { position: absolute; color: #ffd700; font-size: 2rem; font-weight: bold; animation: flyUp 0.8s ease-out forwards; pointer-events: none; }
+        @keyframes flyUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
 </head>
 <body>
 
-    <div class="score-container" id="score">0.00 MRG$</div>
-    
-    <div id="tapZone">
+    <div class="score-container" id="score">0.00</div>
+    <div style="color: #ffd700; font-weight: bold; margin-bottom: 20px;">$MRG</div>
+
+    <div class="coin-wrapper" id="tapZone">
         <img src="logo.jpg" class="coin-img" alt="MRG Coin">
     </div>
 
-    <div class="energy-container">
-        <div class="energy-bar" id="energyBar"></div>
+    <div class="energy-section">
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="energyBar"></div></div>
+        <p style="font-size: 0.9rem; margin-top: 8px;">⚡ <span id="energyVal">1000</span> / 1000</p>
     </div>
-    <p>الطاقة: <span id="energyVal">1000</span>/1000</p>
 
-    <a href="https://t.me/mrg_community" target="_blank" class="task-button" id="taskBtn">
-    انضم لقناة MRG community واربح 100.00 MRG$
-</a>
-
+    <div class="tasks-area">
+        <a href="https://t.me/mrg_community" id="channelTask" class="task-card">
+            <div style="text-align: right;">
+                <div style="font-weight: bold;">انضم لـ MRG community</div>
+                <div style="font-size: 0.7rem; color: #aaa;">مهمة إجبارية</div>
+            </div>
+            <div class="reward-badge">+100.00 $</div>
+        </a>
+    </div>
 
     <script>
         let score = parseFloat(localStorage.getItem('mrg_score')) || 0.00;
         let energy = parseInt(localStorage.getItem('mrg_energy')) || 1000;
         const scoreElement = document.getElementById('score');
 
-        scoreElement.innerText = score.toFixed(2) + " MRG$";
+        function updateUI() {
+            scoreElement.innerText = score.toFixed(2);
+            document.getElementById('energyBar').style.width = (energy / 10) + "%";
+            document.getElementById('energyVal').innerText = energy;
+        }
+        updateUI();
 
-        document.getElementById('tapZone').onclick = () => {
+        document.getElementById('tapZone').onclick = (e) => {
             if (energy > 0) {
                 score = (parseFloat(score) + 0.05).toFixed(2);
                 energy--;
-                saveAndUI();
+                
+                // إضافة الرقم الطائر
+                const plus = document.createElement('div');
+                plus.innerText = "+0.05";
+                plus.className = 'plus-one';
+                plus.style.left = e.clientX + 'px';
+                plus.style.top = (e.clientY - 50) + 'px';
+                document.body.appendChild(plus);
+                setTimeout(() => plus.remove(), 800);
+
+                saveData();
+                updateUI();
+                if (navigator.vibrate) navigator.vibrate(15);
             }
         };
 
-        // مهمة القناة
-        document.getElementById('taskBtn').onclick = function() {
-            if(!localStorage.getItem('task_done')) {
+        document.getElementById('channelTask').onclick = function() {
+            if (!localStorage.getItem('mrg_task_v1')) {
                 score = (parseFloat(score) + 100.00).toFixed(2);
-                localStorage.setItem('task_done', 'true');
-                saveAndUI();
-                alert("مبروك! حصلت على 100 MRG$ للانضمام");
-                this.style.display = 'none'; // اخفاء الزر بعد التنفيذ
+                localStorage.setItem('mrg_task_v1', 'done');
+                saveData();
+                updateUI();
+                this.style.opacity = "0.5";
+                this.style.pointerEvents = "none";
+                alert("تمت إضافة 100.00 $ لرصيدك!");
             }
         };
 
-        function saveAndUI() {
+        function saveData() {
             localStorage.setItem('mrg_score', score);
             localStorage.setItem('mrg_energy', energy);
-            scoreElement.innerText = score + " MRG$";
-            document.getElementById('energyBar').style.width = (energy/10) + "%";
-            document.getElementById('energyVal').innerText = energy;
         }
 
-        setInterval(() => { if(energy < 1000) { energy++; saveAndUI(); } }, 2000);
+        setInterval(() => { if (energy < 1000) { energy++; updateUI(); } }, 1500);
+
+        // إخفاء المهمة إذا اكتملت
+        if(localStorage.getItem('mrg_task_v1')) {
+            document.getElementById('channelTask').style.display = "none";
+        }
     </script>
 </body>
 </html>
