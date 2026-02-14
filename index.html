@@ -3,139 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRG Global Empire</title>
+    <title>MRG Token - Official</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@900&family=Noto+Sans+Arabic:wght@800&display=swap');
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@800&display=swap');
         
         body { 
-            background: #000; color: #fff; text-align: center; 
-            font-family: 'Noto Sans Arabic', sans-serif; 
-            margin: 0; padding: 0; overflow-x: hidden;
-            background: radial-gradient(circle at 50% 30%, #2a2200 0%, #000 70%);
+            background: #000; color: white; text-align: center; 
+            font-family: sans-serif; margin: 0; padding: 0;
+            overflow-y: auto; overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 40%, #1a1a1a 0%, #000 100%);
         }
 
-        /* الرصيد الاحترافي */
-        .top-nav { padding: 40px 20px 20px; position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
-        .score-display { font-family: 'Lexend', sans-serif; font-size: 4.5rem; color: #ffd700; text-shadow: 0 0 25px rgba(255, 215, 0, 0.4); margin: 0; line-height: 1; }
-        .token-tag { font-size: 1.2rem; color: #ffd700; letter-spacing: 4px; font-weight: bold; margin-top: 5px; }
+        /* الجزء العلوي - الرصيد كما في الصورة */
+        .balance-container { margin-top: 50px; }
+        .balance-num { font-family: 'Lexend', sans-serif; font-size: 5rem; color: #fff; margin: 0; text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+        .token-symbol { color: #ffd700; font-weight: bold; font-size: 1.5rem; letter-spacing: 2px; }
 
-        /* منطقة العملة */
-        .game-zone { height: 60vh; display: flex; align-items: center; justify-content: center; position: relative; }
-        .coin-base { 
-            width: 260px; height: 260px; border-radius: 50%; border: 6px solid #ffd700;
-            box-shadow: 0 0 60px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(255, 215, 0, 0.2);
-            transition: transform 0.05s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-            cursor: pointer; position: relative; z-index: 10;
+        /* منطقة العملة والدوائر الكهربائية */
+        .coin-section { position: relative; width: 320px; height: 320px; margin: 30px auto; display: flex; align-items: center; justify-content: center; }
+        .circuit-bg { 
+            position: absolute; width: 100%; height: 100%; 
+            background: url('https://i.ibb.co/LzYvXG8/circuit.png') no-repeat center; /* خلفية افتراضية تشبه الصورة */
+            background-size: contain; opacity: 0.6; z-index: 1; animation: rotateBg 20s linear infinite;
         }
-        .coin-base:active { transform: scale(0.9) rotate(2deg); }
+        @keyframes rotateBg { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* شريط الطاقة */
-        .energy-box { width: 80%; margin: 0 auto 40px; }
-        .bar-container { background: #111; height: 14px; border-radius: 20px; border: 1.5px solid #333; overflow: hidden; }
-        .bar-fill { background: linear-gradient(90deg, #ffd700, #ff8c00); height: 100%; width: 100%; transition: width 0.1s linear; }
+        .main-coin { 
+            width: 200px; height: 200px; border-radius: 50%; border: 6px solid #ffd700;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5); z-index: 5; transition: transform 0.05s;
+        }
+
+        /* شريط الطاقة الذهبي */
+        .energy-section { width: 90%; margin: 20px auto; }
+        .bar-bg { background: #1a1a1a; height: 26px; border-radius: 15px; border: 3px solid #333; overflow: hidden; position: relative; }
+        .bar-fill { 
+            background: linear-gradient(90deg, #ffcc00 0%, #ff9900 100%); 
+            height: 100%; width: 100%; transition: width 0.2s; box-shadow: 0 0 15px #ffcc00;
+        }
+        .energy-text { margin-top: 10px; font-weight: bold; font-size: 1.5rem; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
         /* الأرقام المتطايرة */
-        .float-val { 
-            position: fixed; color: #fff; font-family: 'Lexend', sans-serif; font-size: 2.5rem; 
-            font-weight: 900; pointer-events: none; z-index: 1000;
-            animation: floatAway 0.5s ease-out forwards;
-        }
-        @keyframes floatAway {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -200px) scale(1.5); }
-        }
+        .pop-text { position: fixed; color: #fff; font-size: 2.5rem; font-weight: 900; pointer-events: none; z-index: 999; animation: fly 0.6s ease-out forwards; }
+        @keyframes fly { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-150px) scale(1.5); } }
 
-        /* قائمة المهام */
-        .tasks-section { padding: 20px; padding-bottom: 80px; }
-        .task-card { 
-            background: linear-gradient(145deg, #111, #0a0a0a); border: 1px solid rgba(255, 215, 0, 0.2);
-            padding: 22px; border-radius: 24px; display: flex; justify-content: space-between; 
-            align-items: center; text-decoration: none; color: white; margin-bottom: 15px;
+        /* منطقة المهام (الخط المقطع كما في الصورة) */
+        .task-area { 
+            width: 90%; margin: 40px auto; padding: 20px;
+            border: 2px dashed #ffd700; border-radius: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 215, 0, 0.05); text-decoration: none; color: white;
         }
-        .reward-pill { background: #ffd700; color: #000; padding: 6px 14px; border-radius: 12px; font-weight: 900; }
+        .task-reward { background: #ffd700; color: #000; padding: 8px 18px; border-radius: 15px; font-weight: 900; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <h1 class="score-display" id="mainScore">0.00</h1>
-        <div class="token-tag">$MRG TOKEN</div>
+    <div class="balance-container">
+        <h1 class="balance-num" id="score">0.00</h1>
+        <div class="token-symbol">MRG TOKEN$</div>
     </div>
 
-    <div class="game-zone" id="touchArea">
-        <img src="logo.jpg" class="coin-base" id="mainCoin">
+    <div class="coin-section" id="tapZone">
+        <div class="circuit-bg"></div>
+        <img src="logo.jpg" class="main-coin" id="coinImg">
     </div>
 
-    <div class="energy-box">
-        <div class="bar-container"><div class="bar-fill" id="eFill"></div></div>
-        <div style="margin-top: 10px; color: #ffd700; font-weight: bold; font-size: 1.2rem;">⚡ <span id="eNum">1000</span></div>
+    <div class="energy-section">
+        <div class="bar-bg"><div class="bar-fill" id="energyFill"></div></div>
+        <div class="energy-text">⚡ <span id="energyVal">1000</span> / 1000 ⚡</div>
     </div>
 
-    <div class="tasks-section">
-        <a href="https://t.me/mrg_community" class="task-card" id="task1">
-            <span style="font-size: 1.1rem; font-weight: bold;">انضم للقناة العالمية</span>
-            <span class="reward-pill">+100.00</span>
-        </a>
-    </div>
+    <a href="https://t.me/mrg_community" class="task-area" id="joinTask">
+        <div style="text-align: right;">
+            <div style="font-weight: bold; font-size: 1.2rem;">L MRG community اسنحي</div>
+        </div>
+        <div class="task-reward">+100.00</div>
+    </a>
+
+    <audio id="pop" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
     <script>
-        let score = parseFloat(localStorage.getItem('mrg_global_score')) || 0;
-        let energy = parseInt(localStorage.getItem('mrg_global_energy')) || 1000;
-        const scoreDisplay = document.getElementById('mainScore');
-
-        // محرك الصوت المتقدم
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        function playPop() {
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400 + Math.random() * 100, context.currentTime);
-            gain.gain.setValueAtTime(0.1, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(context.destination);
-            osc.start();
-            osc.stop(context.currentTime + 0.1);
-        }
+        let score = parseFloat(localStorage.getItem('final_v_score')) || 0;
+        let energy = parseInt(localStorage.getItem('final_v_energy')) || 1000;
+        const scoreEl = document.getElementById('score');
+        const popSfx = document.getElementById('pop');
 
         function update() {
-            scoreDisplay.innerText = score.toFixed(2);
-            document.getElementById('eFill').style.width = (energy/10) + "%";
-            document.getElementById('eNum').innerText = energy;
+            scoreEl.innerText = score.toFixed(2);
+            document.getElementById('energyFill').style.width = (energy/10) + "%";
+            document.getElementById('energyVal').innerText = energy;
         }
 
-        document.getElementById('touchArea').addEventListener('touchstart', (e) => {
-            e.preventDefault();
+        document.getElementById('tapZone').addEventListener('click', (e) => {
             if (energy > 0) {
-                Array.from(e.changedTouches).forEach(t => {
-                    score += 0.05;
-                    energy -= 1;
-                    playPop();
+                score += 0.05; energy--;
+                popSfx.currentTime = 0; popSfx.play();
+                
+                const n = document.createElement('div');
+                n.innerText = "+0.05";
+                n.className = 'pop-text';
+                n.style.left = e.clientX + 'px'; n.style.top = e.clientY + 'px';
+                document.body.appendChild(n);
+                setTimeout(() => n.remove(), 600);
 
-                    const n = document.createElement('div');
-                    n.innerText = "+0.05";
-                    n.className = 'float-val';
-                    n.style.left = t.clientX + 'px';
-                    n.style.top = t.clientY + 'px';
-                    document.body.appendChild(n);
-                    setTimeout(() => n.remove(), 500);
-                });
-                localStorage.setItem('mrg_global_score', score);
-                localStorage.setItem('mrg_global_energy', energy);
+                localStorage.setItem('final_v_score', score);
+                localStorage.setItem('final_v_energy', energy);
                 update();
-                if(navigator.vibrate) navigator.vibrate(10);
+                
+                document.getElementById('coinImg').style.transform = "scale(0.92)";
+                setTimeout(() => document.getElementById('coinImg').style.transform = "scale(1)", 50);
+                if(navigator.vibrate) navigator.vibrate(15);
             }
-        }, {passive: false});
+        });
 
-        document.getElementById('task1').onclick = function() {
-            if(!localStorage.getItem('global_task_v1')) {
+        document.getElementById('joinTask').onclick = function() {
+            if(!localStorage.getItem('task_verified')) {
                 score += 100;
-                localStorage.setItem('global_task_v1', 'done');
-                localStorage.setItem('mrg_global_score', score);
+                localStorage.setItem('task_verified', 'true');
+                localStorage.setItem('final_v_score', score);
                 update();
-                this.style.opacity = "0.3";
+                this.style.opacity = "0.5";
             }
         };
 
