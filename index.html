@@ -3,29 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRG Token Hub</title>
+    <title>MRG Token Game</title>
     <style>
-        body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: white; text-align: center; font-family: sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-        .score-container { font-size: 2.8rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6); margin-bottom: 20px; }
-        .coin-img { width: 220px; height: 220px; border-radius: 50%; border: 5px solid #ffd700; box-shadow: 0 0 40px #ffd700; cursor: pointer; transition: transform 0.1s; background: #222; }
-        .coin-img:active { transform: scale(0.92); }
-        .info { margin-top: 25px; font-size: 1.2rem; color: #ffd700; opacity: 0.8; }
+        body { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); color: white; text-align: center; font-family: sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; user-select: none; }
+        .score-container { font-size: 3rem; font-weight: bold; color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6); margin-bottom: 10px; }
+        .coin-wrapper { position: relative; cursor: pointer; transition: transform 0.1s; }
+        .coin-wrapper:active { transform: scale(0.92); }
+        .coin-img { width: 220px; height: 220px; border-radius: 50%; border: 5px solid #ffd700; box-shadow: 0 0 40px #ffd700; background: #222; object-fit: cover; }
+        .energy-container { width: 80%; background: #333; height: 15px; border-radius: 10px; margin-top: 30px; border: 1px solid #ffd700; overflow: hidden; }
+        .energy-bar { background: linear-gradient(90deg, #ffd700, #ffa500); height: 100%; width: 100%; transition: width 0.2s; }
+        .energy-text { margin-top: 5px; font-size: 1rem; color: #ffd700; }
+        .info { margin-top: 15px; font-size: 0.9rem; color: #888; }
     </style>
 </head>
 <body>
+
     <div class="score-container" id="score">0.00 MRG$</div>
-    <div id="tapZone">
-        <img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" class="coin-img" alt="MRG Coin">
+    
+    <div class="coin-wrapper" id="tapZone">
+        <img src="logo.jpg" class="coin-img" alt="MRG Coin">
     </div>
+
+    <div class="energy-container">
+        <div class="energy-bar" id="energyBar"></div>
+    </div>
+    <div class="energy-text">الطاقة: <span id="energyVal">1000</span>/1000</div>
+
     <div class="info">كل ضغطة = 0.05 MRG$</div>
+
     <script>
-        let score = 0.00;
+        // تحميل البيانات المحفوظة أو البدء من جديد
+        let score = parseFloat(localStorage.getItem('mrg_score')) || 0.00;
+        let energy = parseInt(localStorage.getItem('mrg_energy')) || 1000;
+        const maxEnergy = 1000;
+
         const scoreElement = document.getElementById('score');
-        document.getElementById('tapZone').onclick = () => {
-            score = (parseFloat(score) + 0.05).toFixed(2);
-            scoreElement.innerText = score + " MRG$";
-            if (navigator.vibrate) navigator.vibrate(15);
+        const energyBar = document.getElementById('energyBar');
+        const energyVal = document.getElementById('energyVal');
+
+        // تحديث الواجهة عند الفتح
+        scoreElement.innerText = score.toFixed(2) + " MRG$";
+        updateEnergyUI();
+
+        document.getElementById('tapZone').onclick = (e) => {
+            if (energy >= 1) {
+                // زيادة الرصيد
+                score = (parseFloat(score) + 0.05).toFixed(2);
+                energy -= 1;
+                
+                // حفظ البيانات
+                localStorage.setItem('mrg_score', score);
+                localStorage.setItem('mrg_energy', energy);
+
+                // تحديث الواجهة
+                scoreElement.innerText = score + " MRG$";
+                updateEnergyUI();
+
+                // تأثير اهتزاز
+                if (navigator.vibrate) navigator.vibrate(10);
+            }
         };
+
+        // نظام تجديد الطاقة تلقائياً (1 طاقة كل ثانية)
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy++;
+                localStorage.setItem('mrg_energy', energy);
+                updateEnergyUI();
+            }
+        }, 1000);
+
+        function updateEnergyUI() {
+            energyVal.innerText = energy;
+            energyBar.style.width = (energy / maxEnergy * 100) + "%";
+        }
     </script>
 </body>
 </html>
