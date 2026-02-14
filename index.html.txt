@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MRG Clicker</title>
+    <style>
+        body { background: #1a1a1a; color: gold; text-align: center; font-family: Arial; }
+        #coin { width: 200px; height: 200px; background: gold; border-radius: 50%; margin: 50px auto; display: flex; align-items: center; justify-content: center; font-size: 40px; color: black; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px gold; }
+        #coin:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+    <h1>MRG Game</h1>
+    <div id="coin" onclick="clickCoin()">$MRG</div>
+    <h2>Score: <span id="score">0</span></h2>
+
+    <script>
+        let score = 0;
+        function clickCoin() {
+            score++;
+            document.getElementById('score').innerText = score;
+        }
+    </script>
+</body>
+</html>
