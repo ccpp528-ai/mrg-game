@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MRG$ Gold Protocol</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --main-gold: #FFD700; --glow: rgba(255, 215, 0, 0.4); }
+        body { background: #000; color: #fff; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .header { text-align: center; padding: 40px 20px; background: linear-gradient(to bottom, #111, transparent); }
+        .balance { font-size: 4rem; font-weight: 900; letter-spacing: -2px; text-shadow: 0 0 20px var(--glow); }
+        
+        .coin-section { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+        .mrg-coin {
+            width: 250px; height: 250px; border-radius: 50%;
+            background: radial-gradient(circle, #ffe047 0%, #b8860b 100%);
+            box-shadow: 0 0 50px var(--glow), inset 0 0 20px #fff;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: transform 0.05s; position: relative;
+            border: 5px solid #8a6d3b;
+        }
+        .mrg-coin:active { transform: scale(0.95); }
+        .mrg-coin::after { content: '$MRG'; font-size: 3rem; font-weight: bold; color: #5c4301; }
+
+        .energy-box { padding: 20px; background: #0a0a0a; border-top: 1px solid #222; }
+        .progress-bar { width: 100%; height: 15px; background: #1a1a1a; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #FFD700, #FFA500); transition: width 0.2s; }
+        
+        .floating-text { position: absolute; color: #fff; font-weight: bold; font-size: 2rem; pointer-events: none; animation: up 0.7s ease-out forwards; }
+        @keyframes up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-150px); } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="balance" id="score">0</div>
+        <div style="color: var(--main-gold); letter-spacing: 5px;">GOLD RESERVE</div>
+    </div>
+
+    <div class="coin-section">
+        <div class="mrg-coin" id="coin"></div>
+    </div>
+
+    <div class="energy-box">
+        <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
+        <div style="margin-top: 10px; display: flex; justify-content: space-between;">
+            <span>⚡ Energy</span>
+            <span id="energyText">1000/1000</span>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // لفتح التطبيق بكامل الشاشة
+
+        let score = parseInt(localStorage.getItem('mrg_score')) || 0;
+        let energy = 1000;
+
+        function update() {
+            document.getElementById('score').innerText = score.toLocaleString();
+            document.getElementById('fill').style.width = (energy/10) + "%";
+            document.getElementById('energyText').innerText = energy + "/1000";
+        }
+
+        document.getElementById('coin').addEventListener('pointerdown', (e) => {
+            if(energy > 0) {
+                score += 1; energy -= 1;
+                createFloat(e.clientX, e.clientY);
+                localStorage.setItem('mrg_score', score);
+                update();
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            }
+        });
+
+        function createFloat(x, y) {
+            let div = document.createElement('div');
+            div.className = 'floating-text';
+            div.innerText = "+1";
+            div.style.left = x + "px";
+            div.style.top = y + "px";
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 700);
+        }
+
+        setInterval(() => { if(energy < 1000) { energy += 1; update(); } }, 2000);
+        update();
+    </script>
+</body>
+</html>
